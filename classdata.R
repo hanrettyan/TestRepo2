@@ -7,3 +7,4 @@ classdata <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRFdDGgmo
 names(classdata) <- c("Class Number", "Class Name", "Grade Received", "Academic Year", "Semester")
 
 datatable(classdata)
+
