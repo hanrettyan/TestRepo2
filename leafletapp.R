@@ -40,8 +40,8 @@ server <- function(input, output) {
             addCircles ( color = "yellow", label = ~Site)})
   
     # Data Table output-
-    output$araptusdatatable <- DT::renderDataTable({araptus})
-}
+    output$araptusdatatable <- DT::renderDataTable({araptus}, filter='top' )
+    }
         
 
 # Run the application 
