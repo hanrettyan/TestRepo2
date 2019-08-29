@@ -36,7 +36,7 @@ server <- function(input, output) {
     # Map output-
     output$araptusmap1 <- renderLeaflet({
         leaflet(araptus) %>%
-            addProviderTiles( providers$Esri.WorldImagery ) %>%
+            addProviderTiles( "providers$Esri.WorldImagery" ) %>%
             addCircles ( color = "yellow", label = ~Site)})
   
     # Data Table output-
