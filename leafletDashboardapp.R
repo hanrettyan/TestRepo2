@@ -12,8 +12,6 @@ library(leaflet)
 
 # Load, view sample data for Leaflet.
 load("araptus.rda")
-View(araptus)
-
 
 ############################
 ############ UI ############
@@ -37,10 +35,10 @@ ui <- dashboardPage(
                     h2("Class A Data"),
                     fluidRow(
                         # Add Leaflet Map
-                        box(leafletOutput("araptusmap1"), height= 250),
+                        column(leafletOutput("araptusmap1"), width = 6),
                         
                         #Add the data table
-                        box(DT::dataTableOutput("araptusdatatable")))
+                        column (DT::dataTableOutput("araptusdatatable"), width = 6))
             ),
             
             #Class B tab items
@@ -48,7 +46,7 @@ ui <- dashboardPage(
                     h2("Class B Data"),
                     fluidRow(
                         # Add Leaflet Map
-                        box(leafletOutput("araptusmap1"))
+                        column(leafletOutput("araptusmap1"), width = 6)
             
         )
     )

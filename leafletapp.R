@@ -1,15 +1,17 @@
 #Test Shiny web app to include a Leaflet map with the ability to filter data.
-library(shiny)
-
 # Load DT library
 library(DT)
+
+# Load Shiny
+library(shiny)
 
 # Load Leaflet library
 library(leaflet)
 
 # Load, view sample data for Leaflet.
 load("araptus.rda")
-View(araptus)
+library(raster)
+rast <- raster("alt_22.tif")
    
 
 ############################
@@ -25,7 +27,8 @@ ui <- fluidPage(
     
     #Add the data table
     DT::dataTableOutput("araptusdatatable")
-    )
+   
+)
     
 
 ############################
@@ -35,9 +38,11 @@ server <- function(input, output) {
 
     # Map output-
     output$araptusmap1 <- renderLeaflet({
-        leaflet(araptus) %>%
-            addProviderTiles( "providers$Esri.WorldImagery" ) %>%
-            addCircles ( color = "yellow", label = ~Site)})
+      leaflet(araptus) %>%
+        addProviderTiles( providers$Esri.WorldImagery) %>%
+        addRasterImage(rast, opacity = 0.5) %>%
+        addCircles( color="yellow",label = ~Site)
+      })
   
     # Data Table output-
     output$araptusdatatable <- DT::renderDataTable({araptus}, filter='top' )
