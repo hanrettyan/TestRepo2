@@ -39,9 +39,18 @@ server <- function(input, output) {
     # Map output-
     output$araptusmap1 <- renderLeaflet({
       leaflet(araptus) %>%
-        addProviderTiles( providers$Esri.WorldImagery) %>%
-        addRasterImage(rast, opacity = 0.5) %>%
-        addCircles( color="yellow",label = ~Site)
+        # Basemaps
+        addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
+        # Raster
+        addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
+        # Data
+        addCircles( color="yellow",label = ~Site, group = "Araptus Data") %>%
+        # Layers Control Box
+        addLayersControl(
+          overlayGroups = c("Elevation Raster", "Araptus Data"),
+          options = layersControlOptions(collapsed = FALSE)
+        )
+      
       })
   
     # Data Table output-
