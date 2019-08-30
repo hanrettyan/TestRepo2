@@ -7,11 +7,17 @@ library(leaflet)
 library(raster)
 library(dplyr)
 
-# Load, view sample data for Leaflet.
+# Load sample data for Leaflet.
 load("araptus.rda")
-
 rast <- raster("alt_22.tif")
-   
+
+# Create a custom marker for fun map
+bluepointicon <- makeIcon(
+  iconUrl = "https://www.twinword.com/wp-content/uploads/2016/10/location-icon-vector-blue-pin.svg",
+  iconWidth = 30,
+  iconHeight = 30
+)
+
 
 ############################
 ############ UI ############
@@ -43,7 +49,7 @@ server <- function(input, output) {
         # Raster
         addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
         # Data
-        addCircles( color="yellow",label = ~Site, group = "Araptus Data") %>%
+        addMarkers( icon = bluepointicon, label =~Site , group = "Araptus Data") %>%
         # Layers Control Box
         addLayersControl(
           overlayGroups = c("Elevation Raster", "Araptus Data"),

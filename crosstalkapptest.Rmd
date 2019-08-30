@@ -3,9 +3,9 @@ title: "Testing Crosstalk App"
 author: "Angela Hanretty"
 date: "8/30/2019"
 output: 
-  flexdashboard::flex_dashboard
+  flexdashboard::flex_dashboard:
   theme: paper
-  favicon: 
+  favicon: img/ios7-location-outline.png
   source_code: embed
 ---
 
@@ -13,6 +13,7 @@ output:
 library(DT)
 library(shiny)
 library(crosstalk)
+library(raster)
 library(leaflet)
 library(dplyr)
 
@@ -20,11 +21,20 @@ library(dplyr)
 araptusdata2 <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQNCFb3C1oSia_dN5ISXusrGqwVSFibt0_zkqq7wiNtW_tl1DM-Ch-fIKKmIz_ijXxdrKux6qvvy8yD/pub?output=csv")
 sd <- SharedData$new(araptusdata2)
 rast <- raster("alt_22.tif")
+# Create a custom marker for fun map
+bluepointicon <- makeIcon(
+  iconUrl = "https://www.twinword.com/wp-content/uploads/2016/10/location-icon-vector-blue-pin.svg",
+  iconWidth = 20,
+  iconHeight = 20
+)
+
 ```
 
 Interactives {data-icon="ion-stats-bars"}
+=====================================
 
 Column {data-width=400}
+-------------------------------------
 
 ### Filters
 
@@ -104,6 +114,7 @@ sd %>%
 
 
 Column {data-width=600}
+-------------------------------------
 
 ### Interactive Map
 
@@ -111,7 +122,31 @@ Column {data-width=600}
 sd %>%
   leaflet::leaflet() %>%
   leaflet::addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
-  leaflet::addCircles( color="yellow",label = ~Site, group = "Araptus Data") %>%
+  # leaflet::addMarkers(icon = bluepointicon, label = ~Site, group = "Araptus Data") %>%
+  leaflet::addAwesomeMarkers(
+    popup = ~paste0(
+      "<h2>", araptusdata2$Site, "</h2>",
+      "<table style='width:100%'>",
+      "<tr>",
+      
+      "<tr>",
+      "<th>No. Males</th>",
+      "<th>", araptusdata2$Males, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>No. Females</th>",
+      "<th>", araptusdata2$Females, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>Suitability</th>",
+      "<th>", araptusdata2$Suitability, "</th>",
+      "</tr>"
+    ),
+  ) %>%
   leaflet::addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
   leaflet::addLayersControl(
           overlayGroups = c("Elevation Raster", "Araptus Data"),
@@ -120,4 +155,6 @@ sd %>%
 ```
 
 Information {data-orientation=rows data-icon="fa-info-circle"}
+=====================================
 
+CREDITS AND UPDATES
