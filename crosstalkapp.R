@@ -1,17 +1,13 @@
-# Test Shiny web app to include a Leaflet map with the ability to filter data.
+# Test Shiny web app to test crosstalk/leaflet/DT
 
 # Load necessary libraries
 library(DT)
 library(shiny)
 library(leaflet)
-library(raster)
 library(dplyr)
 
-# Load, view sample data for Leaflet.
+# Load, view sample data
 load("araptus.rda")
-
-rast <- raster("alt_22.tif")
-   
 
 ############################
 ############ UI ############
@@ -26,32 +22,32 @@ ui <- fluidPage(
     
     #Add the data table
     DT::dataTableOutput("araptusdatatable")
-   
-)
     
+)
+
 
 ############################
 ########## SERVER ##########
 ############################
 server <- function(input, output) {
-
+    
     # Map output-
     output$araptusmap1 <- renderLeaflet({
-      leaflet(araptus) %>%
-        # Basemaps
-        addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
-        # Raster
-        addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
-        # Data
-        addCircles( color="yellow",label = ~Site, group = "Araptus Data") %>%
-        # Layers Control Box
-        addLayersControl(
-          overlayGroups = c("Elevation Raster", "Araptus Data"),
-          options = layersControlOptions(collapsed = FALSE)
-        )
-      
-      })
-  
+        leaflet(araptus) %>%
+            # Basemaps
+            addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
+            # Raster
+            addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
+            # Data
+            addCircles( color="yellow",label = ~Site, group = "Araptus Data") %>%
+            # Layers Control Box
+            addLayersControl(
+                overlayGroups = c("Elevation Raster", "Araptus Data"),
+                options = layersControlOptions(collapsed = FALSE)
+            )
+        
+    })
+    
     # Data Table output-
     output$araptusdatatable <- DT::renderDataTable({araptus}, 
                                                    # Customize Datatable Style/appearance
@@ -60,12 +56,12 @@ server <- function(input, output) {
                                                    rownames = FALSE,
                                                    caption = "Test Data Table",
                                                    class = c('compact', 'row-border', 'hover', 'order-column')
-                                                   )
+    )
     
     # 
     
-    }
-        
+}
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)

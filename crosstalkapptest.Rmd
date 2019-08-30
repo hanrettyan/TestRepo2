@@ -1,0 +1,123 @@
+---
+title: "Testing Crosstalk App"
+author: "Angela Hanretty"
+date: "8/30/2019"
+output: 
+  flexdashboard::flex_dashboard
+  theme: paper
+  favicon: 
+  source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(DT)
+library(shiny)
+library(crosstalk)
+library(leaflet)
+library(dplyr)
+
+# Load sample class data
+araptusdata2 <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQNCFb3C1oSia_dN5ISXusrGqwVSFibt0_zkqq7wiNtW_tl1DM-Ch-fIKKmIz_ijXxdrKux6qvvy8yD/pub?output=csv")
+sd <- SharedData$new(araptusdata2)
+rast <- raster("alt_22.tif")
+```
+
+Interactives {data-icon="ion-stats-bars"}
+
+Column {data-width=400}
+
+### Filters
+
+```{r filters}
+filter_select(
+  id = "Site",
+  label = "Search by Site Number",
+  sharedData = sd,
+  group = ~Site
+  )
+
+bscols(
+  filter_slider(
+    id = "Suitability",
+    label = "Suitability",
+    sharedData = sd,
+    column = ~Suitability,
+    step = 0.10,
+    round = FALSE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Males",
+    label = "No. Males",
+    sharedData = sd,
+    column = ~Males,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Females",
+    label = "No. Females",
+    sharedData = sd,
+    column = ~Females,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  )
+)
+```
+
+### Data Table
+
+```{r datatable}
+sd %>%
+  DT::datatable(
+    extensions = c("Buttons",
+                   "Scroller"),
+    rownames = FALSE,
+    style = "bootstrap",
+    class = "compact",
+    width = "100%",
+    options = list(
+      dom = "Blrtip",
+      deferRender = TRUE,
+      scrollY = 10,
+      scroller = TRUE,
+      columnDefs = list(
+        list(
+        visible = FALSE)),
+      buttons = list(
+        "csv", "excel")),
+    colnames = c("Site Number" = "Site",
+                 "Long" = "Longitude",
+                 "Lat" = "Latitude",
+                 "No. Males" = "Males",
+                 "No. Females" = "Females",
+                 "Suitability" = "Suitability")
+    )
+```
+
+
+Column {data-width=600}
+
+### Interactive Map
+
+```{r map}
+sd %>%
+  leaflet::leaflet() %>%
+  leaflet::addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
+  leaflet::addCircles( color="yellow",label = ~Site, group = "Araptus Data") %>%
+  leaflet::addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
+  leaflet::addLayersControl(
+          overlayGroups = c("Elevation Raster", "Araptus Data"),
+          options = layersControlOptions(collapsed = FALSE)) %>%
+  leaflet::addMeasure()
+```
+
+Information {data-orientation=rows data-icon="fa-info-circle"}
+
