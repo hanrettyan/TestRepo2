@@ -1,0 +1,427 @@
+---
+title: "Testing Flexdashboard"
+author: "ANH"
+date: "Sept. 2019"
+output:
+  flexdashboard::flex_dashboard: 
+  theme: paper
+  favicon: img/ios7-location-outline.png
+  source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(DT)
+library(shiny)
+library(crosstalk)
+library(raster)
+library(leaflet)
+library(dplyr)
+library(flexdashboard)
+
+# Load sample class data
+rast <- raster("alt_22.tif")
+# Create a custom marker for fun map
+bluepointicon <- makeIcon(
+  iconUrl = "https://www.twinword.com/wp-content/uploads/2016/10/location-icon-vector-blue-pin.svg",
+  iconWidth = 20,
+  iconHeight = 20
+)
+
+```
+
+ENVS 601 {data-icon="ion-stats-bars"}
+=====================================
+
+Column {data-width=400}
+-------------------------------------
+
+### Filters
+
+```{r filters601}
+araptusdata2 <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQNCFb3C1oSia_dN5ISXusrGqwVSFibt0_zkqq7wiNtW_tl1DM-Ch-fIKKmIz_ijXxdrKux6qvvy8yD/pub?output=csv")
+sd <- SharedData$new(araptusdata2)
+filter_select(
+  id = "Site",
+  label = "Search by Site Number",
+  sharedData = sd,
+  group = ~Site
+  )
+
+bscols(
+  filter_slider(
+    id = "Suitability",
+    label = "Suitability",
+    sharedData = sd,
+    column = ~Suitability,
+    step = 0.10,
+    round = FALSE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Males",
+    label = "No. Males",
+    sharedData = sd,
+    column = ~Males,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Females",
+    label = "No. Females",
+    sharedData = sd,
+    column = ~Females,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  )
+)
+```
+
+### Data Table
+
+```{r datatable601}
+sd %>%
+  DT::datatable(
+    extensions = c("Buttons",
+                   "Scroller"),
+    rownames = FALSE,
+    style = "bootstrap",
+    class = "compact",
+    width = "100%",
+    options = list(
+      dom = "Blrtip",
+      deferRender = TRUE,
+      scrollY = 10,
+      scroller = TRUE,
+      columnDefs = list(
+        list(
+        visible = FALSE)),
+      buttons = list(
+        "csv", "excel")),
+    colnames = c("Site Number" = "Site",
+                 "Long" = "Longitude",
+                 "Lat" = "Latitude",
+                 "No. Males" = "Males",
+                 "No. Females" = "Females",
+                 "Suitability" = "Suitability")
+    )
+```
+
+
+Column {data-width=600}
+-------------------------------------
+
+### Interactive Map
+
+```{r map601}
+sd %>%
+  leaflet::leaflet() %>%
+  leaflet::addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
+  # leaflet::addMarkers(icon = bluepointicon, label = ~Site, group = "Araptus Data") %>%
+  leaflet::addAwesomeMarkers(
+    popup = ~paste0(
+      "<h2>", araptusdata2$Site, "</h2>",
+      "<table style='width:100%'>",
+      "<tr>",
+      
+      "<tr>",
+      "<th>No. Males</th>",
+      "<th>", araptusdata2$Males, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>No. Females</th>",
+      "<th>", araptusdata2$Females, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>Suitability</th>",
+      "<th>", araptusdata2$Suitability, "</th>",
+      "</tr>"
+    ),
+  ) %>%
+  leaflet::addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
+  leaflet::addLayersControl(
+          overlayGroups = c("Elevation Raster", "Araptus Data"),
+          options = layersControlOptions(collapsed = FALSE)) %>%
+  leaflet::addMeasure()
+```
+
+
+
+
+
+
+
+ENVS 602 {data-icon="ion-stats-bars"}
+=====================================
+
+Column {data-width=400}
+-------------------------------------
+
+### Filters
+
+```{r filters602}
+araptusdata2 <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQNCFb3C1oSia_dN5ISXusrGqwVSFibt0_zkqq7wiNtW_tl1DM-Ch-fIKKmIz_ijXxdrKux6qvvy8yD/pub?output=csv")
+sd <- SharedData$new(araptusdata2)
+filter_select(
+  id = "Site",
+  label = "Search by Site Number",
+  sharedData = sd,
+  group = ~Site
+  )
+
+bscols(
+  filter_slider(
+    id = "Suitability",
+    label = "Suitability",
+    sharedData = sd,
+    column = ~Suitability,
+    step = 0.10,
+    round = FALSE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Males",
+    label = "No. Males",
+    sharedData = sd,
+    column = ~Males,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Females",
+    label = "No. Females",
+    sharedData = sd,
+    column = ~Females,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  )
+)
+```
+
+### Data Table
+
+```{r datatable602}
+sd %>%
+  DT::datatable(
+    extensions = c("Buttons",
+                   "Scroller"),
+    rownames = FALSE,
+    style = "bootstrap",
+    class = "compact",
+    width = "100%",
+    options = list(
+      dom = "Blrtip",
+      deferRender = TRUE,
+      scrollY = 10,
+      scroller = TRUE,
+      columnDefs = list(
+        list(
+        visible = FALSE)),
+      buttons = list(
+        "csv", "excel")),
+    colnames = c("Site Number" = "Site",
+                 "Long" = "Longitude",
+                 "Lat" = "Latitude",
+                 "No. Males" = "Males",
+                 "No. Females" = "Females",
+                 "Suitability" = "Suitability")
+    )
+```
+
+
+Column {data-width=600}
+-------------------------------------
+
+### Interactive Map
+
+```{r map602}
+sd %>%
+  leaflet::leaflet() %>%
+  leaflet::addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
+  # leaflet::addMarkers(icon = bluepointicon, label = ~Site, group = "Araptus Data") %>%
+  leaflet::addAwesomeMarkers(
+    popup = ~paste0(
+      "<h2>", araptusdata2$Site, "</h2>",
+      "<table style='width:100%'>",
+      "<tr>",
+      
+      "<tr>",
+      "<th>No. Males</th>",
+      "<th>", araptusdata2$Males, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>No. Females</th>",
+      "<th>", araptusdata2$Females, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>Suitability</th>",
+      "<th>", araptusdata2$Suitability, "</th>",
+      "</tr>"
+    ),
+  ) %>%
+  leaflet::addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
+  leaflet::addLayersControl(
+          overlayGroups = c("Elevation Raster", "Araptus Data"),
+          options = layersControlOptions(collapsed = FALSE)) %>%
+  leaflet::addMeasure()
+```
+
+
+
+ENVS 603 {data-icon="ion-stats-bars"}
+=====================================
+
+Column {data-width=400}
+-------------------------------------
+
+### Filters
+
+```{r filters603}
+araptusdata2 <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQNCFb3C1oSia_dN5ISXusrGqwVSFibt0_zkqq7wiNtW_tl1DM-Ch-fIKKmIz_ijXxdrKux6qvvy8yD/pub?output=csv")
+sd <- SharedData$new(araptusdata2)
+filter_select(
+  id = "Site",
+  label = "Search by Site Number",
+  sharedData = sd,
+  group = ~Site
+  )
+
+bscols(
+  filter_slider(
+    id = "Suitability",
+    label = "Suitability",
+    sharedData = sd,
+    column = ~Suitability,
+    step = 0.10,
+    round = FALSE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Males",
+    label = "No. Males",
+    sharedData = sd,
+    column = ~Males,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "Females",
+    label = "No. Females",
+    sharedData = sd,
+    column = ~Females,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  )
+)
+```
+
+### Data Table
+
+```{r datatable603}
+sd %>%
+  DT::datatable(
+    extensions = c("Buttons",
+                   "Scroller"),
+    rownames = FALSE,
+    style = "bootstrap",
+    class = "compact",
+    width = "100%",
+    options = list(
+      dom = "Blrtip",
+      deferRender = TRUE,
+      scrollY = 10,
+      scroller = TRUE,
+      columnDefs = list(
+        list(
+        visible = FALSE)),
+      buttons = list(
+        "csv", "excel")),
+    colnames = c("Site Number" = "Site",
+                 "Long" = "Longitude",
+                 "Lat" = "Latitude",
+                 "No. Males" = "Males",
+                 "No. Females" = "Females",
+                 "Suitability" = "Suitability")
+    )
+```
+
+
+Column {data-width=600}
+-------------------------------------
+
+### Interactive Map
+
+```{r map603}
+sd %>%
+  leaflet::leaflet() %>%
+  leaflet::addProviderTiles( providers$Esri.WorldImagery, group = "Imagery") %>%
+  # leaflet::addMarkers(icon = bluepointicon, label = ~Site, group = "Araptus Data") %>%
+  leaflet::addAwesomeMarkers(
+    popup = ~paste0(
+      "<h2>", araptusdata2$Site, "</h2>",
+      "<table style='width:100%'>",
+      "<tr>",
+      
+      "<tr>",
+      "<th>No. Males</th>",
+      "<th>", araptusdata2$Males, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>No. Females</th>",
+      "<th>", araptusdata2$Females, "</th>",
+      "</tr>",
+      
+      "<tr>",
+      "<tr>",
+      "<th>Suitability</th>",
+      "<th>", araptusdata2$Suitability, "</th>",
+      "</tr>"
+    ),
+  ) %>%
+  leaflet::addRasterImage(rast, opacity = 0.5, group = "Elevation Raster") %>%
+  leaflet::addLayersControl(
+          overlayGroups = c("Elevation Raster", "Araptus Data"),
+          options = layersControlOptions(collapsed = FALSE)) %>%
+  leaflet::addMeasure()
+```
+
+
+
+
+
+
+
+Information {data-orientation=rows data-icon="fa-info-circle"}
+=====================================
+
+CREDITS AND UPDATES
