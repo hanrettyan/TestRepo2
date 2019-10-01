@@ -416,6 +416,95 @@ sd %>%
 ```
 
 
+ENVS 604 {data-icon="ion-stats-bars"}
+=====================================
+
+Column {data-width=500}
+-------------------------------------
+
+### Filters
+
+```{r filters604}
+classesdata <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRFdDGgmoI-9prZL45gHOixA4thITZleI_DkEZ49E-JqELRaxn8K46YM1HaBb0bBgkV5Xx-YrxKRgYM/pub?output=csv")
+sd <- SharedData$new(classesdata)
+filter_select(
+  id = "CLASS.NUMBER",
+  label = "Search by Class Number",
+  sharedData = sd,
+  group = ~CLASS.NUMBER
+  )
+
+bscols(
+  filter_slider(
+    id = "GRADE",
+    label = "Grade",
+    sharedData = sd,
+    column = ~GRADE,
+    step = 0.10,
+    round = FALSE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "SEMESTER",
+    label = "Semester",
+    sharedData = sd,
+    column = ~SEMESTER,
+    step = 5,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  ),
+  
+  filter_slider(
+    id = "YEAR",
+    label = "Year",
+    sharedData = sd,
+    column = ~YEAR,
+    step = 1,
+    round = TRUE,
+    sep = "",
+    ticks = FALSE
+  )
+)
+```
+
+### Data Table
+
+```{r datatable604}
+sd %>%
+  DT::datatable(
+    extensions = c("Buttons",
+                   "Scroller"),
+    rownames = FALSE,
+    style = "bootstrap",
+    class = "compact",
+    width = "100%",
+    options = list(
+      dom = "Blrtip",
+      deferRender = TRUE,
+      scrollY = 10,
+      scroller = TRUE,
+      columnDefs = list(
+        list(
+        visible = FALSE)),
+      buttons = list(
+        "csv", "excel")),
+    colnames = c("Class Number" = "CLASS.NUMBER",
+                 "Name" = "CLASS.NAME",
+                 "Grade" = "GRADE",
+                 "Year" = "YEAR",
+                 "Semester" = "SEMESTER")
+    )
+```
+
+
+Column {data-width=500}
+-------------------------------------
+
+
+
 
 
 
